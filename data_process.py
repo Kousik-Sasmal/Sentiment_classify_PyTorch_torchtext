@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import torchtext
 import zipfile
 import pathlib 
 from pathlib import Path
@@ -12,6 +11,8 @@ data_path.mkdir(parents=True, exist_ok=True)
 
 with zipfile.ZipFile('data/archive.zip','r') as zip_ref:
     zip_ref.extractall(data_path)
+
+
 
 # Loading the "train data"
 df = pd.read_csv('data/twitter_training.csv',header=None)
@@ -50,4 +51,3 @@ df_valid["label"] = df_valid["sentiment"].cat.codes
 valid_cleaned_path = data_path / "valid_cleaned.csv"
 
 df_valid[['tweet', 'sentiment', 'label']].to_csv(valid_cleaned_path, index=False)
-
