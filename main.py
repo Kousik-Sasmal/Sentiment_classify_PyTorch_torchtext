@@ -20,14 +20,14 @@ logging.getLogger('tensorflow').disabled = True  # disable tensorflow warning me
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # train data
-df = pd.read_csv('data/train_cleaned.csv')
-# limit df to 1000
-df = df[:1000]
+df = pd.read_csv('artifacts/train_cleaned.csv')
+# limit df to 5000
+df = df[:5000]
 
 # test data
-df_valid = pd.read_csv('data/valid_cleaned.csv')
-# limit df to 100
-df_valid = df_valid[:100]
+df_valid = pd.read_csv('artifacts/valid_cleaned.csv')
+# limit df to 500
+df_valid = df_valid[:500]
 
 
 tokenizer = get_tokenizer("spacy")
@@ -67,6 +67,10 @@ for i in range(len(df)):
 # Pad the sequences to the same length along dimension 0
 padded_text = pad_sequence([torch.tensor(x) for x in text], batch_first=True, padding_value=0)
 
+MAX_LENGTH = 100
+padded_text = padded_text[:,:MAX_LENGTH]
+
+
 # label of the sentiment for train data
 label =df['label'].to_list()
 label= torch.tensor(label)
@@ -85,6 +89,8 @@ for i in range(len(df_valid)):
 # Pad the sequences to the same length along dimension 0
 padded_text_valid = pad_sequence([torch.tensor(x) for x in valid_token_ids], batch_first=True, padding_value=0)
 # here look, <UNK> will be assign to 0 and padding_idx will be assign also 0
+
+padded_text_valid = padded_text_valid[:,:MAX_LENGTH]
 
 label_valid = df_valid['label'].to_list()
 label_valid = torch.tensor(label_valid)
@@ -152,7 +158,7 @@ loss_fn = torch.nn.CrossEntropyLoss()  # remember it gives logits (row outputs)
 
 
 # Batch Gradient Descent
-epochs = 60
+epochs = 50
 
 for epoch in range(epochs):
     train_loss,train_acc = 0,0
@@ -198,4 +204,4 @@ for epoch in range(epochs):
         
         print(f'Epoch {epoch+1}/{epochs}, Test Loss: {test_loss:.4f}, Test Accuracy: {test_acc:.4f}')
         
-        print('--'*50)
+        print('--'*30)
