@@ -1,18 +1,14 @@
 import numpy as np
 import pandas as pd
 import zipfile
-import pathlib 
-from pathlib import Path
 import os
 
+# initializing `artifacts` folder
+os.makedirs('artifacts',exist_ok=True)
 
-data_path=Path('data')
-data_path.mkdir(parents=True, exist_ok=True)
 
 with zipfile.ZipFile('data/archive.zip','r') as zip_ref:
-    zip_ref.extractall(data_path)
-
-
+    zip_ref.extractall('data')
 
 # Loading the "train data"
 df = pd.read_csv('data/twitter_training.csv',header=None)
@@ -28,11 +24,13 @@ df['sentiment'] = df[2].astype('category')
 df["label"] = df["sentiment"].cat.codes
 
 # Save selected columns of the dataframe to a csv file
-train_cleaned_path = data_path / "train_cleaned.csv"
+train_cleaned_path = "artifacts/train_cleaned.csv"
 
 df[['tweet', 'sentiment', 'label']].to_csv(train_cleaned_path, index=False)
 
+
 #---------------------------------------------------------------------------#
+
 
 # Loading the "validation data"
 df_valid = pd.read_csv('data/twitter_validation.csv',header=None)
@@ -48,6 +46,6 @@ df_valid['sentiment'] = df_valid[2].astype('category')
 df_valid["label"] = df_valid["sentiment"].cat.codes
 
 # Save selected columns of the dataframe to a csv file
-valid_cleaned_path = data_path / "valid_cleaned.csv"
+valid_cleaned_path = "artifacts/valid_cleaned.csv"
 
 df_valid[['tweet', 'sentiment', 'label']].to_csv(valid_cleaned_path, index=False)
