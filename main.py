@@ -21,8 +21,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # train data
 df = pd.read_csv('artifacts/train_cleaned.csv')
-# limit df to 5000
-df = df[:5000]
+# limit df to 10000
+df = df[:10000]
 
 # test data
 df_valid = pd.read_csv('artifacts/valid_cleaned.csv')
@@ -35,10 +35,8 @@ tokenizer = get_tokenizer("spacy")
 def token_gen(text):
     """
     Tokenizes each sentence in a given text and yields the resulting tokens.
-
     Args:
         text (list[str]): A list of sentences to tokenize.
-
     Yields:
         list[str]: The resulting tokens from each sentence.
     """
@@ -46,28 +44,24 @@ def token_gen(text):
         tokens = tokenizer(sent)
         yield tokens
 
-vocab = build_vocab_from_iterator(token_gen(df['tweet']),specials=["<UNK>"])
-#print(vocab.get_stoi())
-vocab.set_default_index(vocab["<UNK>"])  ## to handel OOV problem
 
+vocab = build_vocab_from_iterator(token_gen(df['tweet']),specials=["<UNK>"])
+vocab.set_default_index(vocab["<UNK>"])  ## to handel OOV problem
 
 # numericalize tokens from iterator using vocab
 sequence = numericalize_tokens_from_iterator(vocab=vocab.get_stoi(),iterator=token_gen(df['tweet']))
 
-# for ids in sequence:
-#     print([num for num in ids])
-
-
 # create a list to store tokenized sequences
-text = []
+token_ids = []
 for i in range(len(df)):
     x = list(next(sequence))
-    text.append(x)
+    token_ids.append(x)
 
 # Pad the sequences to the same length along dimension 0
-padded_text = pad_sequence([torch.tensor(x) for x in text], batch_first=True, padding_value=0)
+padded_text = pad_sequence([torch.tensor(x) for x in token_ids], batch_first=True, padding_value=0)
 
-MAX_LENGTH = 100
+# restrict the length of every sequence
+MAX_LENGTH = 100 # to restrict length every sequence 
 padded_text = padded_text[:,:MAX_LENGTH]
 
 
@@ -79,17 +73,20 @@ label= torch.tensor(label)
 X_train,y_train = padded_text,label
 
 
+# numericalize tokens from iterator using vocab for df_valid
+sequence_valid = numericalize_tokens_from_iterator(vocab=vocab,iterator=token_gen(df_valid['tweet']))
 
+# create a list to store tokenized sequences
 valid_token_ids = []
 for i in range(len(df_valid)):
-    token_id = vocab(tokenizer(df_valid['tweet'][i]))
-    valid_token_ids.append(token_id)
+    x = list(next(sequence_valid))
+    valid_token_ids.append(x)
     
-
 # Pad the sequences to the same length along dimension 0
 padded_text_valid = pad_sequence([torch.tensor(x) for x in valid_token_ids], batch_first=True, padding_value=0)
 # here look, <UNK> will be assign to 0 and padding_idx will be assign also 0
 
+# restrict the length of every sequence upto MAX_LENGTH
 padded_text_valid = padded_text_valid[:,:MAX_LENGTH]
 
 label_valid = df_valid['label'].to_list()
@@ -102,7 +99,6 @@ X_test, y_test = padded_text_valid, label_valid
 # Determine the number of classes
 num_classes = len(label.unique())
 
-# Define the RNNClassify module
 class RNNClassify(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_size):
         super().__init__()
@@ -110,10 +106,7 @@ class RNNClassify(nn.Module):
         # Define the embedding layer
         self.embed = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
         
-        # Define the RNN layer
         self.rnn = nn.RNN(embed_dim, hidden_size,batch_first=True)
-        
-        # Define the linear layer
         self.linear = nn.Linear(hidden_size, num_classes)
         
         # Initialize the weights of the module
@@ -150,7 +143,6 @@ class RNNClassify(nn.Module):
 
 VOCAB_SIZE = len(vocab.get_stoi())
 model = RNNClassify(vocab_size=VOCAB_SIZE,embed_dim=100,hidden_size=32).to(device)
-
 
 
 optimizer = torch.optim.Adam(model.parameters(),lr=0.001)

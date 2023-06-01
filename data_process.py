@@ -13,6 +13,7 @@ with zipfile.ZipFile('data/archive.zip','r') as zip_ref:
 # Loading the "train data"
 df = pd.read_csv('data/twitter_training.csv',header=None)
 df.dropna(inplace=True)
+df.drop_duplicates(inplace=True)
 
 # Rename the column with index 3 to "tweet"
 df = df.rename(columns={3: "tweet"})
@@ -35,6 +36,7 @@ df[['tweet', 'sentiment', 'label']].to_csv(train_cleaned_path, index=False)
 # Loading the "validation data"
 df_valid = pd.read_csv('data/twitter_validation.csv',header=None)
 df_valid.dropna(inplace=True)
+df_valid.drop_duplicates(inplace=True)
 
 # Rename the column with index 3 to "tweet"
 df_valid = df_valid.rename(columns={3: "tweet"})
