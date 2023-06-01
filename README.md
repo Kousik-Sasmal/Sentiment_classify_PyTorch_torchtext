@@ -1,11 +1,11 @@
-# Sentiment classification using PyTorch library `torchtext`
+# Experiment with `torchtext` module of `PyTorch` and made a Sentiment classification model
 
-I tried to explore the torchtext library using kaggle dataset https://www.kaggle.com/datasets/jp797498e/twitter-entity-sentiment-analysis.
+I have tried to explore the torchtext library using kaggle dataset https://www.kaggle.com/datasets/jp797498e/twitter-entity-sentiment-analysis.
 
-I only focussed here to explore the different things, not on accuracy. For that I did not used full dataset and not performed the raw text processing here.
+I only focussed here to explore the different things, not on accuracy of model. For that I did not used full dataset and not performed the raw text processing here.
 
-Main code is written in `main.py` and data processing code is written in `data_process.py`.
+Main code is written in `main.py` file and data processing code is written in `data_process.py` file. Main experiment was done in Jupyter notebook `rough_experiment.ipynb` file, and after that all codes written in organized manner in `VS code`.  
 
-I also added the `rough_experiment.ipynb` notebook file along with my code.  
 
-I have made a `sentiment model` using PyTorch with `modular coding approach`, link is https://github.com/Kousik-Sasmal/tweeter-sentiment-using-pytorch/tree/main.
+
+I have made a proper `Sentiment Analysis Model` using PyTorch with `modular coding approach`, link is given here https://github.com/Kousik-Sasmal/tweeter-sentiment-using-pytorch/tree/main.
